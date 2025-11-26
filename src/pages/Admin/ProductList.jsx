@@ -24,23 +24,30 @@ const ProductList = () => {
   const [createProduct] = useCreateProductMutation();
   const { data: categories } = useFetchCategoriesQuery();
 
+  // ✅ FIXED: Send JSON instead of FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const productData = new FormData();
-      productData.append("image", image);
-      productData.append("name", name);
-      productData.append("description", description);
-      productData.append("price", price);
-      productData.append("category", category);
-      productData.append("quantity", quantity);
-      productData.append("brand", brand);
-      productData.append("countInStock", stock);
+      if (!image) {
+        toast.error("Please upload an image first!");
+        return;
+      }
+
+      const productData = {
+        name,
+        description,
+        price,
+        category,
+        quantity,
+        brand,
+        countInStock: stock,
+        image, // Cloudinary URL string
+      };
 
       const { data } = await createProduct(productData);
 
-      if (data.error) {
+      if (data?.error) {
         toast.error("Product create failed. Try Again.");
       } else {
         toast.success(`${data.name} is created`);
@@ -52,6 +59,7 @@ const ProductList = () => {
     }
   };
 
+  // ✅ Image upload stays as-is
   const uploadFileHandler = async (e) => {
     const formData = new FormData();
     formData.append("image", e.target.files[0]);
@@ -59,7 +67,7 @@ const ProductList = () => {
     try {
       const res = await uploadProductImage(formData).unwrap();
       toast.success(res.message);
-      setImage(res.image);
+      setImage(res.image); // Cloudinary URL
       setImageUrl(res.image);
     } catch (error) {
       toast.error(error?.data?.message || error.error);
@@ -87,7 +95,7 @@ const ProductList = () => {
           <div className="mb-6">
             <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-500 rounded-lg cursor-pointer hover:bg-gray-800 transition">
               <span className="font-semibold">
-                {image ? image.name : "Click to Upload Image"}
+                {image ? "Image Uploaded ✅" : "Click to Upload Image"}
               </span>
               <input
                 type="file"
@@ -99,8 +107,8 @@ const ProductList = () => {
             </label>
           </div>
 
+          {/* Product Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name & Price */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-2 text-black">Name</label>
@@ -122,7 +130,6 @@ const ProductList = () => {
               </div>
             </div>
 
-            {/* Quantity & Brand */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-2 text-black">Quantity</label>
@@ -144,7 +151,6 @@ const ProductList = () => {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <label className="block mb-2 text-black">Description</label>
               <textarea
@@ -155,7 +161,6 @@ const ProductList = () => {
               ></textarea>
             </div>
 
-            {/* Count in Stock & Category */}
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-2 text-black">Count In Stock</label>
@@ -171,6 +176,7 @@ const ProductList = () => {
                 <select
                   className="w-full p-3 rounded-lg bg-gray-200 border border-gray-700 focus:outline-none text-black"
                   onChange={(e) => setCategory(e.target.value)}
+                  value={category}
                 >
                   <option value="">Select Category</option>
                   {categories?.map((c) => (
@@ -182,7 +188,6 @@ const ProductList = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div>
               <button
                 type="submit"

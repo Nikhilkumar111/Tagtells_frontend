@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Message from "../../components/Message";
 import ProgressSteps from "../../components/ProgressSteps";
 import Loader from "../../components/Loader";
-import { useCreateOrderMutation } from "../../redux/api/orderApiSlice";
+import { useCreateOrderMutation } from "../../redux/api/orderApiSlice.js";
 import { clearCartItems } from "../../redux/features/cart/cartSlice";
 
 const PlaceOrder = () => {
@@ -15,6 +15,7 @@ const PlaceOrder = () => {
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation();
 
+  // console.log("shipping tkk to pahuch rha");
   useEffect(() => {
     if (!cart.shippingAddress.address) {
       navigate("/shipping");
@@ -25,6 +26,7 @@ const PlaceOrder = () => {
 
   const placeOrderHandler = async () => {
     try {
+      console.log("yh aa rhe bs try block of placeOrderHandler");
       const res = await createOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
@@ -33,7 +35,7 @@ const PlaceOrder = () => {
         shippingPrice: cart.shippingPrice,
         taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
-      }).unwrap();
+      }).unwrap()
       dispatch(clearCartItems());
       navigate(`/order/${res._id}`);
     } catch (error) {
@@ -92,19 +94,19 @@ const PlaceOrder = () => {
           <div className="flex justify-between flex-wrap p-8 bg-[#f4daa3]">
             <ul className="text-lg">
               <li>
-                <span className="font-semibold mb-4">Items:</span> $
+                <span className="font-semibold mb-4">Items:</span> ₹
                 {cart.itemsPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Shipping:</span> $
+                <span className="font-semibold mb-4">Shipping:</span> ₹
                 {cart.shippingPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Tax:</span> $
+                <span className="font-semibold mb-4">Tax:</span> ₹
                 {cart.taxPrice}
               </li>
               <li>
-                <span className="font-semibold mb-4">Total:</span> $
+                <span className="font-semibold mb-4">Total:</span> ₹
                 {cart.totalPrice}
               </li>
             </ul>

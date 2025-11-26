@@ -78,7 +78,7 @@ const ProductDetails = () => {
           <div className="max-w-[1400px] mx-auto mt-10 px-8 text-white space-y-12">
 
             {/* =================== PRODUCT INFO SECTION =================== */}
-            <div className="flex flex-col xl:flex-row gap-12 bg-gray-900/40 p-8 rounded-2xl shadow-lg backdrop-blur-sm border border-gray-700">
+            <div className="flex flex-col xl:flex-row gap-12 bg-gray-800 p-8 rounded-2xl shadow-lg backdrop-blur-sm border border-gray-700">
               
               {/* Left: Image */}
               <div className="relative w-full xl:w-[50%] rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
@@ -100,7 +100,7 @@ const ProductDetails = () => {
                 {/* Product Title + Desc + Price */}
                 <div>
                   <h2 className="text-4xl font-bold mb-2">{product.name}</h2>
-                  <p className="text-gray-300 text-lg leading-relaxed mb-4">
+                  <p className="text-white text-lg leading-relaxed mb-4">
                     {product.description}
                   </p>
                   <p className="text-5xl font-extrabold text-pink-500">
@@ -109,7 +109,7 @@ const ProductDetails = () => {
                 </div>
 
                 {/* Info Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 text-gray-300">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 text-white">
                   <div className="space-y-3">
                     <p className="flex items-center gap-2">
                       <FaStore className="text-pink-500" /> Brand: {product.brand}

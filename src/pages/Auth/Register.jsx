@@ -52,7 +52,7 @@ const Register = () => {
     } else {
       try {
   // Use .unwrap() to get raw API response and throw errors like a normal async call      
-        const res = await register({ username, email, password }).unwrap();
+        const res = await register({ username, email, password });
         dispatch(setCredentials({ ...res }));
         navigate(redirect);
         toast.success("User successfully registered");
