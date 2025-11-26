@@ -220,65 +220,111 @@
 
 
 
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import { useGetFilteredProductsQuery } from "../redux/api/productApiSlice";
 import { useFetchCategoriesQuery } from "../redux/api/categoryApiSlice";
 
-import { setCategories, setProducts, setChecked } from "../redux/features/shop/shopSlice";
+import {
+  setCategories,
+  setProducts,
+  setChecked,
+  resetFilters,
+} from "../redux/features/shop/shopSlice";
+
 import Loader from "../components/Loader";
 import ProductCard from "./Products/ProductCard";
 
 const Shop = () => {
   const dispatch = useDispatch();
-  const { categories, products, checked, radio } = useSelector((state) => state.shop);
+  const { categories, products, checked, radio } = useSelector(
+    (state) => state.shop
+  );
 
   const categoriesQuery = useFetchCategoriesQuery();
   const [priceFilter, setPriceFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false); // Toggle for mobile
+  const [showFilters, setShowFilters] = useState(false);
 
   const filteredProductsQuery = useGetFilteredProductsQuery({ checked, radio });
 
+  // Load categories
   useEffect(() => {
-    if (!categoriesQuery.isLoading) {
+    if (!categoriesQuery.isLoading && categoriesQuery.data) {
       dispatch(setCategories(categoriesQuery.data));
     }
   }, [categoriesQuery.data, categoriesQuery.isLoading, dispatch]);
 
+  // Auto filter products based on checked + price
   useEffect(() => {
-    if (!checked.length || !radio.length) {
-      if (!filteredProductsQuery.isLoading) {
-        const filteredProducts = filteredProductsQuery.data.filter((product) => {
-          return (
+    if (!filteredProductsQuery.isLoading && filteredProductsQuery.data) {
+      let filteredProducts = filteredProductsQuery.data;
+
+      // price filter
+      if (priceFilter) {
+        filteredProducts = filteredProducts.filter(
+          (product) =>
             product.price.toString().includes(priceFilter) ||
             product.price === parseInt(priceFilter, 10)
-          );
-        });
-        dispatch(setProducts(filteredProducts));
+        );
       }
-    }
-  }, [checked, radio, filteredProductsQuery.data, dispatch, priceFilter]);
 
+      dispatch(setProducts(filteredProducts));
+    }
+  }, [
+    checked,
+    radio,
+    filteredProductsQuery.data,
+    filteredProductsQuery.isLoading,
+    dispatch,
+    priceFilter,
+  ]);
+
+  // Brand filter
   const handleBrandClick = (brand) => {
-    const productsByBrand = filteredProductsQuery.data?.filter((product) => product.brand === brand);
+    dispatch(setChecked([])); // clear categories when brand selected
+
+    const productsByBrand = filteredProductsQuery.data?.filter(
+      (product) => product.brand === brand
+    );
+
     dispatch(setProducts(productsByBrand));
   };
 
+  // Category checkbox
   const handleCheck = (value, id) => {
-    const updatedChecked = value ? [...checked, id] : checked.filter((c) => c !== id);
+    const updatedChecked = value
+      ? [...checked, id]
+      : checked.filter((c) => c !== id);
+
     dispatch(setChecked(updatedChecked));
   };
 
+  // Unique brand list
   const uniqueBrands = [
-    ...Array.from(
-      new Set(
-        filteredProductsQuery.data?.map((product) => product.brand).filter((brand) => brand !== undefined)
-      )
+    ...new Set(
+      filteredProductsQuery.data
+        ?.map((p) => p.brand)
+        .filter((brand) => brand !== undefined)
     ),
   ];
 
+  // Price filter input
   const handlePriceChange = (e) => setPriceFilter(e.target.value);
+
+  // RESET BUTTON FIXED
+  const handleReset = () => {
+    dispatch(resetFilters());
+    setPriceFilter("");
+
+    // Reset radio buttons
+    const radios = document.getElementsByName("brand");
+    radios.forEach((radio) => (radio.checked = false));
+
+    // Reset checkboxes
+    const checkboxes = document.querySelectorAll("input[type='checkbox']");
+    checkboxes.forEach((box) => (box.checked = false));
+  };
 
   return (
     <div className="container mx-auto p-2">
@@ -300,7 +346,11 @@ const Shop = () => {
             showFilters ? "block" : "hidden md:block"
           }`}
         >
-          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">Filter by Categories</h2>
+          {/* Categories */}
+          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">
+            Filter by Categories
+          </h2>
+
           <div className="p-2">
             {categories?.map((c) => (
               <div key={c._id} className="mb-2 flex items-center">
@@ -314,7 +364,11 @@ const Shop = () => {
             ))}
           </div>
 
-          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">Filter by Brands</h2>
+          {/* Brand Filter */}
+          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">
+            Filter by Brands
+          </h2>
+
           <div className="p-2">
             {uniqueBrands?.map((brand) => (
               <div key={brand} className="mb-2 flex items-center">
@@ -330,7 +384,11 @@ const Shop = () => {
             ))}
           </div>
 
-          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">Filter by Price</h2>
+          {/* Price Filter */}
+          <h2 className="text-center py-2 bg-white rounded-full mb-2 font-semibold">
+            Filter by Price
+          </h2>
+
           <div className="p-2 mb-2">
             <input
               type="text"
@@ -341,9 +399,10 @@ const Shop = () => {
             />
           </div>
 
+          {/* RESET BUTTON */}
           <button
             className="w-full py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition"
-            onClick={() => window.location.reload()}
+            onClick={handleReset}
           >
             Reset
           </button>

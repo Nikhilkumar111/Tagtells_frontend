@@ -149,7 +149,7 @@ const Order = () => {
             await payOrder({ orderId: order._id, details: response });
             refetch();
             toast.success("Payment successful!");
-          } catch (err) {
+          } catch{
             toast.error("Failed to update payment status.");
           }
         },
