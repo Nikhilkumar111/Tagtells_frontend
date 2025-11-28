@@ -9,6 +9,8 @@ const baseQuery = fetchBaseQuery({
     // ❗ Do NOT set JSON header for file upload
     if (endpoint !== "uploadImage") {
       headers.set("Content-Type", "application/json");
+    }else{
+          headers.set("Content-Type", "application/json");
     }
 
     return headers;
