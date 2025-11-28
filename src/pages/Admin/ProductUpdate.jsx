@@ -57,7 +57,7 @@ const AdminProductUpdate = () => {
       const res = await uploadProductImage(formData).unwrap();
       toast.success("Image uploaded successfully", { position: "top-right", autoClose: 2000 });
       setImage(res.image);
-    } catch (err) {
+    } catch{
       toast.error("Image upload failed", { position: "top-right", autoClose: 2000 });
     }
   };
@@ -94,22 +94,29 @@ const AdminProductUpdate = () => {
       toast.error("Product update failed", { position: "top-right", autoClose: 2000 });
     }
   };
+const handleDelete = async () => {
+  if (!window.confirm("Are you sure you want to delete this product?")) return;
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  setLoading(true);
+  try {
+    const { data } = await deleteProduct(params._id); // RTK Query mutation
 
-    setLoading(true);
-    try {
-      const { data } = await deleteProduct(params._id);
-      setLoading(false);
-      toast.success(`"${data.name}" deleted successfully`, { position: "top-right", autoClose: 2000 });
+    setLoading(false);
+
+    // ✅ Use message returned from backend instead of data.name
+    if (data.success) {
+      toast.success(data.message, { position: "top-right", autoClose: 2000 });
       navigate("/admin/allproductslist");
-    } catch (err) {
-      setLoading(false);
-      console.error(err);
-      toast.error("Delete failed", { position: "top-right", autoClose: 2000 });
+    } else {
+      toast.error(data.message || "Delete failed", { position: "top-right", autoClose: 2000 });
     }
-  };
+  } catch (err) {
+    setLoading(false);
+    console.error(err);
+    toast.error(err?.data?.message || "Delete failed", { position: "top-right", autoClose: 2000 });
+  }
+};
+
 
   if (productLoading || categoriesLoading || loading) return <Loader />;
 

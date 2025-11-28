@@ -41,15 +41,19 @@ const Navigation = () => {
   }
 };
 
-
-  return (
-    <div
-      style={{ zIndex: 9999 }}
-      className={`${
-        showSidebar ? "hidden" : "flex"
-      } xl:flex lg:flex md:hidden sm:hidden flex-col justify-between p-4 text-white bg-[#000] w-[4%] hover:w-[15%] h-[100vh]  fixed `}
-      id="navigation-container"
-    >
+return (
+  <div
+    style={{ zIndex: 9999 }}
+    className={`
+      fixed top-0 left-0 h-screen bg-black text-white flex flex-col justify-between p-4
+      w-16 hover:w-56 transition-all duration-300 ease-in-out
+      sm:w-20 sm:hover:w-60
+      md:w-20 md:hover:w-60
+      lg:w-16 lg:hover:w-56
+      xl:w-16 xl:hover:w-56
+    `}
+    id="navigation-container"
+  >
       <div className="flex flex-col justify-center space-y-4">
         <Link
           to="/"

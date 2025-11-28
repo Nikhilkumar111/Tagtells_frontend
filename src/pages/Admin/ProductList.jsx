@@ -24,7 +24,6 @@ const ProductList = () => {
   const [createProduct] = useCreateProductMutation();
   const { data: categories } = useFetchCategoriesQuery();
 
-  // ✅ FIXED: Send JSON instead of FormData
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -45,32 +44,39 @@ const ProductList = () => {
         image, // Cloudinary URL string
       };
 
-      const { data } = await createProduct(productData);
+      // ✅ FIX: Use .unwrap() to properly handle RTK Query response
+      const result = await createProduct(productData).unwrap();
 
-      if (data?.error) {
-        toast.error("Product create failed. Try Again.");
-      } else {
-        toast.success(`${data.name} is created`);
-        navigate("/");
-      }
+      toast.success(`${result.name} is created`);
+      navigate("/");
     } catch (error) {
       console.error(error);
-      toast.error("Product create failed. Try Again.");
+      // ✅ FIX: Use proper error parsing for RTK Query
+      toast.error(error?.data?.message || error?.message || "Product create failed. Try Again.");
     }
   };
 
-  // ✅ Image upload stays as-is
   const uploadFileHandler = async (e) => {
+      const file = e.target.files[0];
+  console.log("File size (bytes):", file.size);
+  console.log("File type:", file.type);
+
+  if (file.size > 10 * 1024 * 1024) { // 10MB
+    console.log("File too large! Max 10MB allowed.");
+    return;
+  }
     const formData = new FormData();
     formData.append("image", e.target.files[0]);
 
     try {
-      const res = await uploadProductImage(formData).unwrap();
+      console.log("step 1 done");
+      const res = await uploadProductImage(formData).unwrap(); // ✅ unwrap() used
+      console.log("step 2");
       toast.success(res.message);
       setImage(res.image); // Cloudinary URL
       setImageUrl(res.image);
     } catch (error) {
-      toast.error(error?.data?.message || error.error);
+      toast.error(error?.data?.message || error?.message || "Image upload failed");
     }
   };
 
@@ -91,7 +97,6 @@ const ProductList = () => {
             </div>
           )}
 
-          {/* File Upload */}
           <div className="mb-6">
             <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-500 rounded-lg cursor-pointer hover:bg-gray-800 transition">
               <span className="font-semibold">
@@ -107,7 +112,6 @@ const ProductList = () => {
             </label>
           </div>
 
-          {/* Product Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
