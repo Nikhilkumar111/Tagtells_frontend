@@ -52,6 +52,7 @@ export const productApiSlice = apiSlice.injectEndpoints({
         url: `${UPLOAD_URL}`,
         method: "POST",
         body: data,  //Formdata
+        credentials: "include",  // ← MUST
       }),
     }),
 
