@@ -57,8 +57,8 @@ const UserList = () => {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4">Users</h1>
+    <div className="px-6 mx-6">
+      <h1 className="m-5 p-14 text-2xl font-semibold mb-4">Users</h1>
       {isLoading ? (
         <Loader />
       ) : error ? (
